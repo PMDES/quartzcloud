@@ -1,0 +1,53 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>
+            YChat
+        </title>
+        <link
+            rel = "stylesheet"
+            href = "{% static 'emojiPickerUpdate.css' %}">
+        <link
+            rel = "shortcut icon"
+            href = "{% static 'icon.png' %}">
+    </head>
+    <body>
+        <div
+            class = "settings-nav">
+            <h2>
+                Settings
+            </h2>
+            <a
+                href = "/server/settings/{{server.id}}">
+                Server Settings
+            </a>
+            <a
+                href = "/server/delete/{{server.id}}"
+                class = "logout-link">
+                Delete Forever
+            </a>
+        </div>
+        <div
+            class = "settings">
+            <h2>
+              {{server.name}} - Settings
+            </h2>
+            <form
+                method="post"
+                enctype="multipart/form-data">
+                {% csrf_token %}
+                {{ form.as_p }}<br>
+                Invite is https://ychat.dev/[invite]
+                <button
+                    type="submit">
+                    Save
+                </button>
+                <a
+                    href = "/server/{{server.id}}">
+                    Cancel
+                </a>
+            </form>
+        </div>
+    </body>
+</html>

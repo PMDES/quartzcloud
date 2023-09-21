@@ -1,0 +1,222 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>
+            YChat
+        </title>
+        <link
+            rel = "stylesheet"
+            href = "{% static 'emojiPickerUpdate.css' %}">
+        <link
+            rel = "shortcut icon"
+            href = "{% static 'icon.png' %}">
+        <meta
+            name = "og:title"
+            content = "YChat">
+        <meta
+            name = "og:description"
+            content = "The free Open Source chatapp">
+        <meta
+            name = "og:image"
+            content = "https://ychat.dev/static/icon.png">
+    </head>
+    <body oncontextmenu = "showContextMenu(event);">
+        {% if request.user.is_authenticated %}
+        <div
+            class = "server-list">
+            <div
+                class = "server-box">
+                <div
+                    class = "server"
+                    id = "dm">
+                    DM
+                </div>
+            </div>
+            {% for cserver in request.user.servers.all %}
+            <div
+                class = "server-box">
+                <div
+                    class = "server"
+                    id = "{{cserver.id}}"
+                    style="background-image: url('{{cserver.icon.url}}');">
+                </div>
+            </div>
+            {% endfor %}
+            <div
+                class = "server-box"
+                onclick = "window.open('/server/new',target='_self')">
+                <div
+                    class = "server"
+                    id = "dm">
+                    +
+                </div>
+            </div>
+        </div>
+        <div
+            class = "main">
+            <div
+                class = "server-title"
+                {% if server %}id = "{{server.id}}">
+                
+                    {{server.name }}
+                {% else %}id = "dms">
+                    Your DMs
+                {% endif %}
+            </div>
+            {% if server %}
+            <div class="server-owner-id" id="{{server.owner_id}}"></div>
+            <div
+                class = "channel-list">
+                {% for channel in channels %}
+                <div
+                    class = "channel-box"
+                    id = "{{server.id}}/{{channel.id}}">
+                    <div
+                    class = "channel-name" id = "{{server.id}}/{{channel.id}}">
+                        {{channel.name}}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div
+                class = "dm-list">
+                {% for dm in dms %}
+                  <div
+                      class = "dm-box"
+                      id = "{{dm.id}}">
+                      <div
+                      class = "dm-name">
+                          {% if request.user.id == dm.user_1.id %}
+                              {{dm.user_2.username}}
+                          {% else %}
+                              {{dm.user_1.username}}
+                          {% endif %}
+                      </div>
+                  </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            <div
+                class = "user-me">
+                @{{request.user.username|upper}}
+            </div>
+            <div
+                class = "settings-icon">
+                ⚙
+            </div>
+            <div
+                class = "chat">
+                {% if channel %}
+                    {% for message in  channel.messages %}
+                        <div
+                            class = "message"
+                            id = "{{message.id}}" onmousedown="setContextMenu('message',{{message.id}}, {{message.author.id}}, {{request.user.id}})">
+                            <div
+                                class = "message-author">
+                                <span
+                                    class = "message-author-name"
+                                    id = "{{message.author.id}}">
+                                    {{message.author.username}}
+                                </span>
+                                <span
+                                    class="timestamp">
+                                    {{message.timestamp}} UTC
+                                </span>
+                            </div>
+        
+                            <div class = "message-content" id="{{message.id}}">
+                                {{message.content|safe}} {% if message.edited %} <small><small style="color:#123">[EDITED]</small></small>{% endif %}
+                                <div class="reactions">
+                                    {% for reaction in message.reactions.all %}
+                                          <button class="reaction-button" onclick="window.open('/channel/{{server.id}}/{{channel.id}}/update_reaction/{{message.id}}/{{reaction.reaction_type}}',target='_self')">
+                                            {{ reaction.reaction_type }} ({{ reaction.users.count }})
+                                        </button>
+                                    {% endfor %}
+                                    <button class="reaction-button" onclick="openEmojiPicker({{ message.id }}, '/channel/{{server.id}}/{{channel.id}}/update_reaction/{{message.id}}/')">+</button>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% elif dm %}
+                  {% for message in dm_messages %}
+                        <div
+                            class = "message"
+                            id = "{{message.id}}">
+                            <div
+                                class = "message-author">
+                                <span
+                                    class = "message-author-name"
+                                    id = "{{message.author.id}}">
+                                    {{message.author.username}}
+                                </span>
+                                <span
+                                    class="timestamp">
+                                    {{message.timestamp}} UTC
+                                </span>
+                            </div>
+        
+                            <div class = "message-content">
+                                {{message.content|safe}} {% if message.edited %} <small><small style="color:#333;">[EDITED]</small></small>{% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                <div
+                    class = "message">
+                    <div class = "message-content">
+                        NO CHANNEL SELECTED
+                    </div>
+                </div>
+                {% endif %}
+                
+            </div>
+            {% if channel %}
+            {% if channel.obj.default_perm_write or request.user in server.obj.admins.all or request.user.id == server.obj.owner.id %}
+            <div
+                class = "chat-input">
+                <input
+                    id = "chat-input"
+                    placeholder = "Type message"
+                    maxlength="256">
+                <button
+                    id = "chat-send">
+                    Send
+                </button>
+            </div>
+            {% endif %}
+            {% endif %}
+            {% if dm %}
+            <div
+                class = "chat-input">
+                <input
+                    id = "chat-input"
+                    placeholder = "Type message"
+                    maxlength="256">
+                <button
+                    id = "chat-send">
+                    Send
+                </button>
+            </div>
+            {% endif %}
+            {% else %}
+            <meta http-equiv = "refresh" content="0; URL={% url 'user:login' %}">
+            {% endif %}
+        </div>
+        <div class="context-menu" id="context-menu">
+            <ul>
+                <li><a href="#">Option 1</a></li>
+                <li><a href="#">Option 2</a></li>
+                <li><a href="#">Option 3</a></li>
+            </ul>
+        </div>       
+        <script src = "{% static 'autoEmojiUpdateFix.js' %}"></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const inputElement = document.getElementById('chat-input');
+                inputElement.focus();
+            });
+        </script>
+    </body>
+</html>

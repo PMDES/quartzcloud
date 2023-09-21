@@ -1,0 +1,29 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>
+            YChat
+        </title>
+        <link
+            rel = "stylesheet"
+            href = "{% static 'emojiPickerUpdate.css' %}">
+        <link
+            rel = "shortcut icon"
+            href = "{% static 'icon.png' %}">
+    </head>
+    <body>
+        <div class = "center-login">
+            <div class = "login">
+                <h2>Login</h2>
+                <form method="post">
+                    {% csrf_token %}
+                    {{form.username}}
+                    {{form.password}}
+                    <button class = "loginbtn" type="submit">Login</button>
+                    <div class="loginbtn" onclick = "window.open('{% url "user:register" %}',target='_self')">Register</div>
+                </form>
+            </div>
+        </div>
+    </body>
+</html>

@@ -1,4 +1,4 @@
-# ychat.dev Django Project
+# ychat.dev
 
 ## Introduction
 
@@ -17,7 +17,7 @@ pip install Django
    Clone this repository to your local machine using Git:
 
    ```bash
-   git clone https://github.com/yourusername/ychat.dev.git
+   git clone https://github.com/CutyCat2000/ychat.dev.git
    ```
 
 2. **Navigate to the Project Directory:**
